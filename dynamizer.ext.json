@@ -15,23 +15,110 @@
           "type": "string"
         },
         "linkToObservation": {
-          "uri": "uri-reference"
+          "description": "Link to observation response",
+          "uri": {
+            "type": "string",
+            "format": "uri-reference"
+          }
         },
         "linkToSensor": {
-          "uri": "uri-reference"
+          "description": "Link to the description/metadata of the sensor device",
+          "uri": {
+            "type": "string",
+            "format": "uri-reference"
+          }
         },
         "sensorLocation": {
           "$ref": "cityobjects.schema.json#/_AbstractCityObject"
         }
       }
     },
-    "_AbstractTimeseries": {
-      "type": "object",
+    "dynamicDataDR": {
+      "$ref": "http://www.opengis.net/def/timeseriesType/timeseriesML/TimeseriesDomainRange"
+    },
+    "dynamicDataTVP": {
+      "$ref": "http://www.opengis.net/def/timeseriesType/timeseriesML/TimeseriesTimeValuePair"
+    },
+    "observationData": {
+      "time": {
+        "type": "string"
+      },
+      "value": {
+        "type": "number"
+      }
+    },
+    "AtomicTimeseries": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/dynamicDataDR"
+        },
+        {
+          "$ref": "#/definitions/dynamicDataTVP"
+        },
+        {
+          "$ref": "#/definitions/observationData"
+        }
+      ]
+    },
+    "CompositeTimeseries": {
       "properties": {
-        "timeseries": {
-          "description": "TO BE COMPLETED"
+        "BaseTime": {
+          "type": "string"
+        },
+        "spacing": {
+          "type": "string"
         }
       }
+    },
+    "TimeseriesComponent": {
+      "type": "object",
+      "properties": {
+        "repetitions": {
+          "type": "integer"
+        },
+        "additionalGap": {
+          "$ref": "http://www.opengis.net/def/objectType/ISO-19108/2002/TM_Period"
+        },
+        "component": {
+          "$ref": "#/definitions/CompositeTimeseries"
+        }
+      }
+    },
+    "_AbstractTimeseries": {
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/AtomicTimeseries"
+        },
+        {
+          "$ref": "#/definitions/CompositeTimeseries"
+        }
+      ],
+      "properties": {
+        "timeseries": {
+          "$ref": "#/definitions/TimeseriesComponent"
+        }
+      }
+    },
+    "TM_Position": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "string",
+          "format": "time"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
     }
   },
   "extraRootProperties": {},
@@ -41,20 +128,23 @@
         "type": "object",
         "properties": {
           "attributeRef": {
-            "description": "It refers to a specific attribute of a specific city object by using an XPath expression. This is the static property that should be overridden by timeseries data",
-            "uri": "uri-reference"
+            "description": "It refers to a specific attribute of a specific city object by using an uri expression. This is the static property that should be overridden by timeseries data",
+            "uri": {
+              "type": "string",
+              "format": "uri-reference"
+            }
           },
           "startTime": {
-            "type": "TM_Position"
+            "$ref": "#/definitions/TM_Position"
           },
           "endTime": {
-            "type": "TM_Position"
+            "$ref": "#/definitions/TM_Position"
           },
           "linkToSensor": {
             "$ref": "#/definitions/SensorConnection"
           },
           "dynamicData": {
-            "$ref": "#/definitions/AbstractTimeSeries"
+            "$ref": "#/definitions/_AbstractTimeSeries"
           }
         }
       }
